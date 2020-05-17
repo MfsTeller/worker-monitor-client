@@ -21,9 +21,8 @@ PCの起動・停止時刻を取得し、その時間を出退勤時刻として
 下記コマンドを実行し、ソフトウェアをインストールしてください。
 
 ~~~
-$ git clone https://github.com/MfsTeller/worker-monitor-client
-$ cd worker-monitor-client/src
-$ GOOS=windows GOARCH=amd64 go build -o worker-monitor.exe
+$ git clone https://github.com/MfsTeller/worker-monitor-client.git
+$ make
 ~~~
 
 下記コマンドを実行すると、対象日時のPC起動・停止時刻を取得し、標準出力に出力した上で、`result`ディレクトリ配下に`json`ファイルとして記録します。`-d`オプションを省略した場合は、実行日のPC起動・停止時刻を取得します。
