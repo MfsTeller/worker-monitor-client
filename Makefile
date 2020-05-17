@@ -13,6 +13,7 @@ RM      = powershell.exe Remove-Item -Recurse
 # Definition of variables
 BINDIR      = bin
 SRCDIR      = src
+INSTALLPATH = C:\Program Files\worker-monitor
 
 # Main
 $(TARGET) : $(TARGET)
@@ -20,6 +21,13 @@ $(TARGET) : $(TARGET)
 		$(CD) $(SRCDIR); $(GOBUILD) -o ../$(BINDIR)/$(TARGET)
 
 # Task
+.PHONY : install
+install  :
+		$(MKDIR) '"$(INSTALLPATH)"'
+		$(CP) $(BINDIR)/$(TARGET) '"$(INSTALLPATH)/$(TARGET)"'
+		$(SETENV)
+
 .PHONY : clean
 clean  :
 		$(RM) $(BINDIR)
+		$(RM) '"$(INSTALLPATH)"'

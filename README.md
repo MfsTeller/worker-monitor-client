@@ -16,13 +16,39 @@
 
 PCの起動・停止時刻を取得し、その時間を出退勤時刻として自動記録するソフトウェアを提供します。
 
+## Environment
+
+本ソフトウェアは下記の環境での動作を確認済みです。
+
+|Environment|Content|
+|:--        |:--    |
+|OS         |Windows 10 Home Premium|
+
+本ソフトウェアのビルドについて、下記の環境での動作を確認済みです。
+
+|Environment|Version|
+|:--        |:--    |
+|Golang     |1.14   |
+|Make       |4.3    |
+
 ## Installing / Getting started
 
-下記コマンドを実行し、ソフトウェアをインストールしてください。
+下記コマンドを実行し、ソフトウェアをダウンロードしてください。
 
 ~~~
 $ git clone https://github.com/MfsTeller/worker-monitor-client.git
+~~~
+
+下記コマンドを**管理者権限で**実行し、ソフトウェアをビルド・インストールしてください。
+
+~~~
 $ make
+$ make install
+  => C:\Program Files\worker-monitorディレクトリが作成され、配下にバイナリファイルが格納されます。
+
+[Optional]
+任意の場所でworker-monitor.exeを実行可能にしたい場合、環境変数PATHに下記のファイルパスを追加してください
+C:\Program Files\worker-monitor
 ~~~
 
 下記コマンドを実行すると、対象日時のPC起動・停止時刻を取得し、標準出力に出力した上で、`result`ディレクトリ配下に`json`ファイルとして記録します。`-d`オプションを省略した場合は、実行日のPC起動・停止時刻を取得します。
@@ -65,7 +91,7 @@ $ worker-monitor -d 2020/04/30
 {
     "client_id": 1,
     "name": "Taro Sato",
-    "work_dir": "C:\\Users\\UserName\\Desktop\\workspace\\worker-monitor\\bin"
+    "work_dir": "C:\\Program\ Files\\worker-monitor"
 }
 ~~~
 
@@ -81,7 +107,7 @@ $ worker-monitor -d 2020/04/30
 # worker-monitor -unsetup
 ~~~
 
-## DB Access (WIP)
+## DB Access
 
 下記コマンドを実行すると、Worker-Monitor Serverから自PCの情報を取得します。
 
@@ -93,6 +119,14 @@ $ worker-monitor -get
 
 ~~~
 $ worker-monitor -post
+~~~
+
+## Uninstalling
+
+下記コマンドを***管理者権限で**実行すると、ソフトウェアをアンインストールできます。
+
+~~~
+$ make clean
 ~~~
 
 ## Features
@@ -113,13 +147,8 @@ $ worker-monitor -post
 ### Functionality
 
 - Worker-Monitor Client
-  - インストール自動化（Makefile作成）
   - 記録データの暗号・復号処理
 - Worker-Monitor Serverの構築
-  - Dockerコンテナ（またはKubernetes Pod）をデプロイ
-  - DBアクセス
-  - RESTful API形式でデータを送受信
-    - OpenAPIで執筆
   - 認証機能
 - Worker-Monitor Portalの構築
   - Dockerコンテナ（またはKubernetes Pod）をデプロイ
