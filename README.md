@@ -48,7 +48,7 @@ $ make install
 
 [Optional]
 任意の場所でworker-monitor.exeを実行可能にしたい場合、環境変数PATHに下記のファイルパスを追加してください
-C:\Program Files\worker-monitor
+C:\Program Files\worker-monitor\bin
 ~~~
 
 下記コマンドを実行すると、対象日時のPC起動・停止時刻を取得し、標準出力に出力した上で、`result`ディレクトリ配下に`json`ファイルとして記録します。`-d`オプションを省略した場合は、実行日のPC起動・停止時刻を取得します。
@@ -76,7 +76,7 @@ $ worker-monitor -d 2020/04/30
 
 ## Task Scheduling
 
-`worker-monitor/config/config.json`を編集します。編集する内容は下記です。
+インストールディレクトリ配下の`worker-monitor/config/config.json`を編集します。編集する内容は下記です。
 
 ~~~
 {
@@ -91,7 +91,7 @@ $ worker-monitor -d 2020/04/30
 {
     "client_id": 1,
     "name": "Taro Sato",
-    "work_dir": "C:\\Program\ Files\\worker-monitor"
+    "work_dir": "C:\\Program Files\\worker-monitor\\bin"
 }
 ~~~
 

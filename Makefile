@@ -6,14 +6,16 @@ TARGET = worker-monitor.exe
 GOCMD   = go
 GOBUILD = $(GOCMD) build
 CD      = powershell.exe cd
-CP      = powershell.exe cp
+CPDIR   = powershell.exe cp -r
 MKDIR   = powershell.exe New-Item -ItemType Directory
 RM      = powershell.exe Remove-Item -Recurse
 
 # Definition of variables
-BINDIR      = bin
-SRCDIR      = src
-INSTALLPATH = C:\Program Files\worker-monitor
+BINDIR       = bin
+SRCDIR       = src
+CONFIGDIR    = config
+CONFIGFILE   = config.dat
+INSTALLPATH  = '"C:\Program Files\worker-monitor"'
 
 # Main
 $(TARGET) : $(TARGET)
@@ -23,11 +25,11 @@ $(TARGET) : $(TARGET)
 # Task
 .PHONY : install
 install  :
-		$(MKDIR) '"$(INSTALLPATH)"'
-		$(CP) $(BINDIR)/$(TARGET) '"$(INSTALLPATH)/$(TARGET)"'
-		$(SETENV)
+		$(MKDIR) $(INSTALLPATH)
+		$(CPDIR) $(BINDIR)    $(INSTALLPATH)
+		$(CPDIR) $(CONFIGDIR) $(INSTALLPATH)
 
 .PHONY : clean
 clean  :
 		$(RM) $(BINDIR)
-		$(RM) '"$(INSTALLPATH)"'
+		$(RM) $(INSTALLPATH)
