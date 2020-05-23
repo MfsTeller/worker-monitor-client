@@ -10,98 +10,78 @@ import (
 	"strings"
 	"time"
 
+	"local.packages/clientdata"
 	"local.packages/configloader"
 	"local.packages/monitor"
 	"local.packages/scheduler"
 	"local.packages/timer"
-	"local.packages/writer"
 )
 
 var (
-	NtpServer = "time.windows.com"
-	Layout    = map[string]string{
+	// Command line argument parameter
+	TargetDate time.Time
+	// Constant map for print format
+	Layout = map[string]string{
 		"datetime": "2006/01/02 15:04:05",
 		"date":     "2006/01/02",
 	}
+	// Config file data
+	configImpl configloader.ConfigLoader
+)
+
+const (
+	Setup          = "setup"
+	Unsetup        = "unsetup"
+	Get            = "get"
+	Post           = "post"
+	Run            = "run"
+	NtpServer      = "time.windows.com"
 	ResultFilePath = "../result"
-	TargetDate     time.Time
-	IsSetup        bool
-	IsUnsetup      bool
-	IsGet          bool
-	IsPost         bool
 )
 
 func parseFlag() {
 	TargetDateStr := flag.String("d", "", `Target Date: "YYYY-MM-DD"`)
-	isSetup := flag.Bool("setup", false, "Setup Mode Flag: true -> execute setup")
-	isUnsetup := flag.Bool("unsetup", false, "Unsetup Mode Flag: true -> execute unsetup")
-	isGet := flag.Bool("get", false, "Get Mode Flag: true -> execute GET request")
-	isPost := flag.Bool("post", false, "Post Mode Flag: true -> execute POST request")
 	flag.Parse()
 
 	// target date setting
 	if strings.EqualFold(*TargetDateStr, "") {
-		// get current time
-		var timerImpl timer.Timer = timer.NewTimer(NtpServer, Layout["datetime"])
+		timerImpl := timer.NewTimer(NtpServer, Layout["datetime"])
 		TargetDate = timerImpl.GetCurrentTime()
 	} else {
-		var err error
-		TargetDate, err = time.Parse(Layout["date"], *TargetDateStr)
-		if err != nil {
-			log.Fatal(err)
-		}
+		TargetDate = timer.ParseTime(Layout["date"], *TargetDateStr)
 	}
-
-	// setup mode setting
-	IsSetup = *isSetup
-
-	// unsetup mode setting
-	IsUnsetup = *isUnsetup
-
-	// get mode setting
-	IsGet = *isGet
-
-	// post mode setting
-	IsPost = *isPost
-
 }
 
-func main() {
-	// flag check
-	parseFlag()
-
-	// load config.json
-	var configImpl configloader.ConfigLoader = configloader.NewConfigLoader()
-	configImpl.Load(`../config/config.json`)
-
-	// setup mode
-	if IsSetup {
-		scheduler.RegisterScheduledTask(configImpl.GetWorkDir())
-		os.Exit(0)
+func osArgsValidation() {
+	if len(os.Args) < 2 {
+		fmt.Println("Invalid arguments")
+		os.Exit(1)
 	}
+}
 
-	// unsetup mode
-	if IsUnsetup {
-		scheduler.UnregisterScheduledTask()
-		os.Exit(0)
-	}
+func setup() {
+	scheduler.RegisterScheduledTask(configImpl.GetWorkDir())
+}
 
-	// get mode
-	if IsGet {
-		var clientDataList []writer.ClientData
-		var writerImpl writer.Writer = writer.NewWriter(clientDataList)
-		respBody := writerImpl.Get(1)
-		message := fmt.Sprintf(
-			"=== GET client data: client ID = %d",
-			configImpl.GetClientID(),
-		)
-		fmt.Println(message)
-		fmt.Println(string(respBody))
-		os.Exit(0)
-	}
+func unsetup() {
+	scheduler.UnregisterScheduledTask()
+}
 
+func get() {
+	var clientDataList []clientdata.ClientData
+	clientdataImpl := clientdata.NewClientData(clientDataList)
+	respBody := clientdataImpl.Get(1)
+	message := fmt.Sprintf(
+		"=== GET client data: client ID = %d",
+		configImpl.GetClientID(),
+	)
+	fmt.Println(message)
+	fmt.Println(string(respBody))
+}
+
+func run() {
 	// get current time
-	var timerImpl timer.Timer = timer.NewTimer(NtpServer, Layout["datetime"])
+	timerImpl := timer.NewTimer(NtpServer, Layout["datetime"])
 	execDate := timerImpl.GetCurrentTimeFormatted()
 
 	// detect start-up date
@@ -113,7 +93,7 @@ func main() {
 	fmt.Println(shutdownDatetimeList)
 
 	// generate file content
-	clientDataList := make([]writer.ClientData, len(startupDatetimeList))
+	clientDataList := make([]clientdata.ClientData, len(startupDatetimeList))
 	for index, s := range startupDatetimeList {
 		clientDataList[index].ClientID = configImpl.GetClientID()
 		clientDataList[index].Name = configImpl.GetName()
@@ -129,26 +109,58 @@ func main() {
 	}
 
 	// write file
-	var writerImpl writer.Writer = writer.NewWriter(clientDataList)
+	clientdataImpl := clientdata.NewClientData(clientDataList)
 	layout := "2006-01-02"
 	filename := timer.GetTimeFormatted(TargetDate, layout) + ".json"
 	filepath := filepath.Join(ResultFilePath, filename)
-	writerImpl.Write(filepath, 0666)
+	clientdataImpl.Write(filepath, 0666)
+}
 
-	// post mode
-	if IsPost {
-		reqBody := writerImpl.GetClientData()
-		jsonBytes, err := json.Marshal(reqBody)
-		if err != nil {
-			log.Fatal(err)
-		}
-		writerImpl.Post(jsonBytes)
-		message := fmt.Sprintf(
-			"=== POST client data: client ID = %d",
-			configImpl.GetClientID(),
-		)
-		fmt.Println(message)
-		os.Exit(0)
+func post() {
+	clientdataImpl := clientdata.NewClientData(nil)
+	layout := "2006-01-02"
+	filename := timer.GetTimeFormatted(TargetDate, layout) + ".json"
+	filepath := filepath.Join(ResultFilePath, filename)
+	clientdataImpl.Read(filepath)
+	reqBody := clientdataImpl.GetClientData()
+
+	jsonBytes, err := json.Marshal(reqBody)
+	if err != nil {
+		log.Fatal(err)
 	}
+	clientdataImpl.Post(jsonBytes)
+	message := fmt.Sprintf(
+		"=== POST client data: client ID = %d",
+		configImpl.GetClientID(),
+	)
+	fmt.Println(message)
+}
 
+func main() {
+	// flag check
+	parseFlag()
+
+	// load config.json
+	configImpl = configloader.NewConfigLoader()
+	configImpl.Load(`../config/config.json`)
+
+	// command line arguments check
+	osArgsValidation()
+
+	// execute command
+	targetCmd := os.Args[1]
+	switch targetCmd {
+	case Setup:
+		setup()
+	case Unsetup:
+		unsetup()
+	case Get:
+		get()
+	case Post:
+		post()
+	case Run:
+		run()
+	default:
+		fmt.Println("Invalid arguments")
+	}
 }

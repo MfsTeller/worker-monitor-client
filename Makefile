@@ -13,6 +13,7 @@ RM      = powershell.exe Remove-Item -Recurse
 # Definition of variables
 BINDIR       = bin
 SRCDIR       = src
+RESULTDIR    = result
 CONFIGDIR    = config
 CONFIGFILE   = config.dat
 INSTALLPATH  = '"C:\Program Files\worker-monitor"'
@@ -26,6 +27,7 @@ $(TARGET) : $(TARGET)
 .PHONY : install
 install  :
 		$(MKDIR) $(INSTALLPATH)
+		$(CPDIR) $(RESULTDIR) $(INSTALLPATH)
 		$(CPDIR) $(BINDIR)    $(INSTALLPATH)
 		$(CPDIR) $(CONFIGDIR) $(INSTALLPATH)
 

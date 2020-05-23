@@ -8,7 +8,8 @@ import (
 	"local.packages/cmd"
 )
 
-var (
+const (
+	Run      = "run"
 	TaskName = "WorkerMonitor"
 	ExecFile = "worker-monitor.exe"
 )
@@ -32,10 +33,10 @@ func RegisterScheduledTask(workDir string) {
 	}
 
 	// set action
-	// $action=New-ScheduledTaskAction -Execute "<executionFile>" -WorkingDirectory "<workingDirectory>"
+	// $action=New-ScheduledTaskAction -Execute "<executionCommand>" -WorkingDirectory "<workingDirectory>"
 	action := fmt.Sprintf(
-		`$action=New-ScheduledTaskAction -Execute "%s" -WorkingDirectory "%s"; `,
-		ExecFile, workDir,
+		`$action=New-ScheduledTaskAction -Execute "%s %s" -WorkingDirectory "%s"; `,
+		ExecFile, Run, workDir,
 	)
 
 	// set trigger

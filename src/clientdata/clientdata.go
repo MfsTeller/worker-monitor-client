@@ -1,4 +1,4 @@
-package writer
+package clientdata
 
 import (
 	"bytes"
@@ -10,9 +10,10 @@ import (
 	"os"
 )
 
-type Writer interface {
+type ClientDataController interface {
 	GetClientData() []ClientData
 	Write(string, os.FileMode)
+	Read(string)
 	Get(int64) []byte
 	Post([]byte)
 }
@@ -25,21 +26,21 @@ type ClientData struct {
 	ShutdownDatetime string `json:"shutdown_datetime"`
 }
 
-type WriterData struct {
+type ClientDataList struct {
 	clientData []ClientData
 }
 
-func NewWriter(clientData []ClientData) *WriterData {
-	w := new(WriterData)
+func NewClientData(clientData []ClientData) *ClientDataList {
+	w := new(ClientDataList)
 	w.clientData = clientData
 	return w
 }
 
-func (u *WriterData) GetClientData() []ClientData {
+func (u *ClientDataList) GetClientData() []ClientData {
 	return u.clientData
 }
 
-func (u *WriterData) Write(filepath string, perm os.FileMode) {
+func (u *ClientDataList) Write(filepath string, perm os.FileMode) {
 	jsonBytes, err := json.Marshal(u.clientData)
 	if err != nil {
 		log.Fatal(err)
@@ -47,6 +48,17 @@ func (u *WriterData) Write(filepath string, perm os.FileMode) {
 	out := new(bytes.Buffer)
 	json.Indent(out, jsonBytes, "", "    ")
 	err = ioutil.WriteFile(filepath, out.Bytes(), perm)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (u *ClientDataList) Read(filepath string) {
+	jsonBytes, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = json.Unmarshal(jsonBytes, &u.clientData)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -80,7 +92,7 @@ func HttpRequest(method string, url string, header map[string]string, body []byt
 	return byteList
 }
 
-func (u *WriterData) Get(clientID int64) []byte {
+func (u *ClientDataList) Get(clientID int64) []byte {
 	method := "GET"
 	url := fmt.Sprintf(
 		"http://192.168.99.100:8080/clientdata/%d",
@@ -90,7 +102,7 @@ func (u *WriterData) Get(clientID int64) []byte {
 	return respBody
 }
 
-func (u *WriterData) Post(body []byte) {
+func (u *ClientDataList) Post(body []byte) {
 	method := "POST"
 	url := "http://192.168.99.100:8080/clientdata"
 	header := map[string]string{

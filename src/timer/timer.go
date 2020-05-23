@@ -40,9 +40,17 @@ func (u *TimerData) GetCurrentTime() (now time.Time) {
 
 func (u *TimerData) GetCurrentTimeFormatted() string {
 	now := u.GetCurrentTime()
-	return now.Format(u.printFormat)
+	return GetTimeFormatted(now, u.printFormat)
 }
 
 func GetTimeFormatted(targetTime time.Time, layout string) string {
 	return targetTime.Format(layout)
+}
+
+func ParseTime(layout, datetimeStr string) time.Time {
+	datetime, err := time.Parse(layout, datetimeStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return datetime
 }
