@@ -54,7 +54,7 @@ C:\Program Files\worker-monitor\bin
 下記コマンドを実行すると、対象日時のPC起動・停止時刻を取得し、標準出力に出力した上で、`result`ディレクトリ配下に`json`ファイルとして記録します。`-d`オプションを省略した場合は、実行日のPC起動・停止時刻を取得します。
 
 ~~~
-$ worker-monitor [-d "YYYY/MM/DD"]
+$ worker-monitor run [-d "YYYY/MM/DD"]
 ~~~
 
 ~~~
@@ -98,13 +98,13 @@ $ worker-monitor -d 2020/04/30
 **管理者権限で**下記コマンドを実行すると、Worker-Monitorが定期実行（システム起動時に実行）タスクとして登録されます。
 
 ~~~
-# worker-monitor -setup
+# worker-monitor setup
 ~~~
 
 **管理者権限で**下記コマンドを実行すると、Worker-Monitor定期実行タスクが削除されます。
 
 ~~~
-# worker-monitor -unsetup
+# worker-monitor unsetup
 ~~~
 
 ## DB Access
@@ -112,13 +112,13 @@ $ worker-monitor -d 2020/04/30
 下記コマンドを実行すると、Worker-Monitor Serverから自PCの情報を取得します。
 
 ~~~
-$ worker-monitor -get
+$ worker-monitor get
 ~~~
 
 下記コマンドを実行すると、Worker-Monitor Serverに自PCの情報を送信・登録します。登録した情報は、上記getモードで取得することができます。
 
 ~~~
-$ worker-monitor -post
+$ worker-monitor post
 ~~~
 
 ## Uninstalling
