@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-type ClientDataController interface {
+type ClientDataInterface interface {
 	GetClientData() []ClientData
 	Write(string, os.FileMode)
 	Read(string)

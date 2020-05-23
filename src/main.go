@@ -45,7 +45,7 @@ func parseFlag() {
 
 	// target date setting
 	if strings.EqualFold(*TargetDateStr, "") {
-		timerImpl := timer.NewTimer(NtpServer, Layout["datetime"])
+		var timerImpl timer.Timer = timer.NewTimer(NtpServer, Layout["datetime"])
 		TargetDate = timerImpl.GetCurrentTime()
 	} else {
 		TargetDate = timer.ParseTime(Layout["date"], *TargetDateStr)
@@ -69,7 +69,7 @@ func unsetup() {
 
 func get() {
 	var clientDataList []clientdata.ClientData
-	clientdataImpl := clientdata.NewClientData(clientDataList)
+	var clientdataImpl clientdata.ClientDataInterface = clientdata.NewClientData(clientDataList)
 	respBody := clientdataImpl.Get(1)
 	message := fmt.Sprintf(
 		"=== GET client data: client ID = %d",
@@ -81,7 +81,7 @@ func get() {
 
 func run() {
 	// get current time
-	timerImpl := timer.NewTimer(NtpServer, Layout["datetime"])
+	var timerImpl timer.Timer = timer.NewTimer(NtpServer, Layout["datetime"])
 	execDate := timerImpl.GetCurrentTimeFormatted()
 
 	// detect start-up date
@@ -109,7 +109,7 @@ func run() {
 	}
 
 	// write file
-	clientdataImpl := clientdata.NewClientData(clientDataList)
+	var clientdataImpl clientdata.ClientDataInterface = clientdata.NewClientData(clientDataList)
 	layout := "2006-01-02"
 	filename := timer.GetTimeFormatted(TargetDate, layout) + ".json"
 	filepath := filepath.Join(ResultFilePath, filename)
@@ -117,7 +117,7 @@ func run() {
 }
 
 func post() {
-	clientdataImpl := clientdata.NewClientData(nil)
+	var clientdataImpl clientdata.ClientDataInterface = clientdata.NewClientData(nil)
 	layout := "2006-01-02"
 	filename := timer.GetTimeFormatted(TargetDate, layout) + ".json"
 	filepath := filepath.Join(ResultFilePath, filename)
