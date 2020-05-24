@@ -1,0 +1,72 @@
+@startuml
+
+title System Architecture
+
+!define BLUE #87cefa
+
+skinparam sequenceActorBorderColor #696969
+skinparam sequenceParticipantBorderColor #696969
+skinparam sequenceArrowColor #696969
+skinparam sequenceLifeLineBorderColor #696969
+skinparam sequenceBoxBorderColor #ffffff
+
+actor user
+participant "public portal" as pubportal
+participant client
+box "Kubernetes (minikube)" BLUE
+participant "NGINX Ingress Controller" as nginx
+participant "local portal pod" as portal
+participant "server pod" as server
+database "postgreSQL pod" as psql
+end box
+
+activate nginx
+
+user -> pubportal: download software
+activate user
+activate pubportal
+user <-- pubportal: software
+deactivate pubportal
+
+user -> user: install software
+deactivate user
+
+user -> client: execute command
+activate user
+
+activate client
+client -> nginx: REST API
+nginx -> server: REST API (from client)
+
+activate server
+' PostgreSQL registation start
+server -> psql: DDL
+activate psql
+server<--psql: DDL result
+deactivate psql
+' PostgreSQL registation end
+nginx<--server: REST API response
+client<--nginx: REST API response
+deactivate server
+
+user<--client: command result
+deactivate client
+deactivate user
+
+' using Dashboard
+user-> nginx: open dashboard
+activate user
+nginx->portal: REST API
+activate portal
+portal->server: REST API
+activate server
+portal<--server: REST API response
+deactivate server
+nginx<--portal: dashboard
+deactivate portal
+user<-- nginx: dashboard
+deactivate user
+
+deactivate nginx
+
+@enduml
