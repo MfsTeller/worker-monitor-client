@@ -1,3 +1,8 @@
+/*
+Copyright 2020 The Worker-Monitor-Client Author.
+Licensed under the GNU General Public License v3.0.
+    https://github.com/MfsTeller/worker-monitor-client/blob/master/LICENSE
+*/
 package clientdata
 
 import (
@@ -10,6 +15,7 @@ import (
 	"os"
 )
 
+// ClientDataInterface defines interface for clientdata.
 type ClientDataInterface interface {
 	GetClientData() []ClientData
 	Write(string, os.FileMode)
@@ -18,6 +24,7 @@ type ClientDataInterface interface {
 	Post([]byte)
 }
 
+// ClientData defines user identification data for worker-monitor-client.
 type ClientData struct {
 	ClientID         int64  `json:"client_id"`
 	Name             string `json:"name"`
@@ -26,22 +33,26 @@ type ClientData struct {
 	ShutdownDatetime string `json:"shutdown_datetime"`
 }
 
+// ClientDataList defines multiple dates ClientData.
 type ClientDataList struct {
-	clientData []ClientData
+	ClientData []ClientData
 }
 
+// NewClientData creates a client data controller.
 func NewClientData(clientData []ClientData) *ClientDataList {
 	w := new(ClientDataList)
-	w.clientData = clientData
+	w.ClientData = clientData
 	return w
 }
 
+// GetClientData is a getter for ClientData.
 func (u *ClientDataList) GetClientData() []ClientData {
-	return u.clientData
+	return u.ClientData
 }
 
+// Write function creates a client data file.
 func (u *ClientDataList) Write(filepath string, perm os.FileMode) {
-	jsonBytes, err := json.Marshal(u.clientData)
+	jsonBytes, err := json.Marshal(u.ClientData)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,17 +64,19 @@ func (u *ClientDataList) Write(filepath string, perm os.FileMode) {
 	}
 }
 
+// Read function fetches a client data file.
 func (u *ClientDataList) Read(filepath string) {
 	jsonBytes, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = json.Unmarshal(jsonBytes, &u.clientData)
+	err = json.Unmarshal(jsonBytes, &u.ClientData)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
+// HttpRequast creates http request for worker-monitor-server.
 func HttpRequest(method string, url string, header map[string]string, body []byte) []byte {
 	// create http request
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(body))
@@ -92,6 +105,7 @@ func HttpRequest(method string, url string, header map[string]string, body []byt
 	return byteList
 }
 
+// Get function creates a http GET request.
 func (u *ClientDataList) Get(clientID int64) []byte {
 	method := "GET"
 	url := fmt.Sprintf(
@@ -102,6 +116,7 @@ func (u *ClientDataList) Get(clientID int64) []byte {
 	return respBody
 }
 
+// Get function creates a http POST request.
 func (u *ClientDataList) Post(body []byte) {
 	method := "POST"
 	url := "http://192.168.99.100:8080/clientdata"

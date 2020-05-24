@@ -1,3 +1,8 @@
+/*
+Copyright 2020 The Worker-Monitor-Client Author.
+Licensed under the GNU General Public License v3.0.
+    https://github.com/MfsTeller/worker-monitor-client/blob/master/LICENSE
+*/
 package scheduler
 
 import (
@@ -14,6 +19,7 @@ const (
 	ExecFile = "worker-monitor.exe"
 )
 
+// IsTaskScheduled searches worker-monitor-client task.
 func IsTaskScheduled() bool {
 	getTaskCmd := fmt.Sprintf(
 		`Get-ScheduledTask -TaskName "%s"`,
@@ -26,6 +32,7 @@ func IsTaskScheduled() bool {
 	return true
 }
 
+// RegisterScheduledTask registers a worker-monitor-client task.
 func RegisterScheduledTask(workDir string) {
 	if IsTaskScheduled() {
 		fmt.Println("WorkerMonitor task is setupped")
@@ -56,6 +63,7 @@ func RegisterScheduledTask(workDir string) {
 	fmt.Println("Setup succeeded")
 }
 
+// UnregisterScheduledTask unregisters a worker-monitor-client task.
 func UnregisterScheduledTask() {
 	if !IsTaskScheduled() {
 		fmt.Println("WorkerMonitor task is not setupped")

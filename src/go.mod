@@ -1,4 +1,4 @@
-module worker-monitor
+module worker-monitor-client
 
 go 1.14
 

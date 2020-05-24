@@ -1,3 +1,8 @@
+/*
+Copyright 2020 The Worker-Monitor-Client Author.
+Licensed under the GNU General Public License v3.0.
+    https://github.com/MfsTeller/worker-monitor-client/blob/master/LICENSE
+*/
 package monitor
 
 import (
@@ -11,12 +16,14 @@ import (
 )
 
 var (
+	// InstanceID is a map for powershell instance ID.
 	InstanceID = map[string]string{
 		"startup":  "7001",
 		"shutdown": "7002",
 	}
 )
 
+// DetectDatetime detects target datetime data.
 func DetectDatetime(instanceID string, targetDate time.Time) []time.Time {
 	logName := "System"
 	layout := "2006/01/02"
@@ -59,10 +66,12 @@ func DetectDatetime(instanceID string, targetDate time.Time) []time.Time {
 	return datetime
 }
 
+// DetectStartup detects startup datetime.
 func DetectStartup(targetDate time.Time) []time.Time {
 	return DetectDatetime(InstanceID["startup"], targetDate)
 }
 
+// DetectShutdown detects shudown datetime.
 func DetectShutdown(targetDate time.Time) []time.Time {
 	return DetectDatetime(InstanceID["shutdown"], targetDate)
 }

@@ -1,3 +1,8 @@
+/*
+Copyright 2020 The Worker-Monitor-Client Author.
+Licensed under the GNU General Public License v3.0.
+    https://github.com/MfsTeller/worker-monitor-client/blob/master/LICENSE
+*/
 package main
 
 import (
@@ -18,14 +23,14 @@ import (
 )
 
 var (
-	// Command line argument parameter
+	// TargetDate command line argument parameter
 	TargetDate time.Time
-	// Constant map for print format
+	// Layout constant map for print format
 	Layout = map[string]string{
 		"datetime": "2006/01/02 15:04:05",
 		"date":     "2006/01/02",
 	}
-	// Config file data
+	// configImpl config file data
 	configImpl configloader.ConfigLoader
 )
 
@@ -39,6 +44,7 @@ const (
 	ResultFilePath = "../result"
 )
 
+// parseFlag configures parameter indicated in command line argument.
 func parseFlag() {
 	TargetDateStr := flag.String("d", "", `Target Date: "YYYY-MM-DD"`)
 	flag.Parse()
@@ -52,6 +58,7 @@ func parseFlag() {
 	}
 }
 
+// osArgsValidation validates command line arguments
 func osArgsValidation() {
 	if len(os.Args) < 2 {
 		fmt.Println("Invalid arguments")
@@ -137,17 +144,13 @@ func post() {
 }
 
 func main() {
-	// flag check
 	parseFlag()
 
-	// load config.json
 	configImpl = configloader.NewConfigLoader()
 	configImpl.Load(`../config/config.json`)
 
-	// command line arguments check
 	osArgsValidation()
 
-	// execute command
 	targetCmd := os.Args[1]
 	switch targetCmd {
 	case Setup:
