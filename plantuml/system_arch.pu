@@ -46,8 +46,8 @@ server<--psql: DDL result
 deactivate psql
 ' PostgreSQL registation end
 nginx<--server: REST API response
-client<--nginx: REST API response
 deactivate server
+client<--nginx: REST API response
 
 user<--client: command result
 deactivate client
@@ -60,6 +60,12 @@ nginx->portal: REST API
 activate portal
 portal->server: REST API
 activate server
+' PostgreSQL registation start
+server -> psql: DDL
+activate psql
+server<--psql: DDL result
+deactivate psql
+' PostgreSQL registation end
 portal<--server: REST API response
 deactivate server
 nginx<--portal: dashboard
