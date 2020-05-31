@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -32,6 +31,10 @@ var (
 	}
 	// configImpl config file data
 	configImpl configloader.ConfigLoader
+	// exiter for test
+	exiter = func(exitCode int) {
+		os.Exit(exitCode)
+	}
 )
 
 const (
@@ -42,12 +45,19 @@ const (
 	Run            = "run"
 	NtpServer      = "time.windows.com"
 	ResultFilePath = "../result"
+	ConfigFilePath = `../config/config.json`
 )
+
+func LogFatal(err error) {
+	fmt.Println(err)
+	exiter(1)
+}
 
 // parseFlag configures parameter indicated in command line argument.
 func parseFlag() {
-	TargetDateStr := flag.String("d", "", `Target Date: "YYYY-MM-DD"`)
-	flag.Parse()
+	cmd := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	TargetDateStr := cmd.String("d", "", `Target Date: "YYYY-MM-DD"`)
+	cmd.Parse(os.Args[2:])
 
 	// target date setting
 	if strings.EqualFold(*TargetDateStr, "") {
@@ -62,11 +72,13 @@ func parseFlag() {
 func osArgsValidation() {
 	if len(os.Args) < 2 {
 		fmt.Println("Invalid arguments")
-		os.Exit(1)
+		exiter(1)
 	}
 }
 
 func setup() {
+	configImpl = configloader.NewConfigLoader()
+	configImpl.Load(ConfigFilePath)
 	scheduler.RegisterScheduledTask(configImpl.GetWorkDir())
 }
 
@@ -78,6 +90,8 @@ func get() {
 	var clientDataList []clientdata.ClientData
 	var clientdataImpl clientdata.ClientDataInterface = clientdata.NewClientData(clientDataList)
 	respBody := clientdataImpl.Get(1)
+	configImpl = configloader.NewConfigLoader()
+	configImpl.Load(ConfigFilePath)
 	message := fmt.Sprintf(
 		"=== GET client data: client ID = %d",
 		configImpl.GetClientID(),
@@ -101,6 +115,8 @@ func run() {
 
 	// generate file content
 	clientDataList := make([]clientdata.ClientData, len(startupDatetimeList))
+	configImpl = configloader.NewConfigLoader()
+	configImpl.Load(ConfigFilePath)
 	for index, s := range startupDatetimeList {
 		clientDataList[index].ClientID = configImpl.GetClientID()
 		clientDataList[index].Name = configImpl.GetName()
@@ -133,9 +149,11 @@ func post() {
 
 	jsonBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		log.Fatal(err)
+		LogFatal(err)
 	}
 	clientdataImpl.Post(jsonBytes)
+	configImpl = configloader.NewConfigLoader()
+	configImpl.Load(ConfigFilePath)
 	message := fmt.Sprintf(
 		"=== POST client data: client ID = %d",
 		configImpl.GetClientID(),
@@ -145,9 +163,6 @@ func post() {
 
 func main() {
 	parseFlag()
-
-	configImpl = configloader.NewConfigLoader()
-	configImpl.Load(`../config/config.json`)
 
 	osArgsValidation()
 
