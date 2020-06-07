@@ -113,12 +113,19 @@ $ worker-monitor -d 2020/04/30
 
 ~~~
 $ worker-monitor get
+=== GET client data: client ID = 1
+[
+  {"client_id":1,"name":"Taro Sato","startup_datetime":"2020-04-30T09:31:33Z","shutdown_datetime":"2020-04-30T11:23:13Z"},
+  {"client_id":1,"name":"Taro Sato","startup_datetime":"2020-04-30T20:14:32Z","shutdown_datetime":"2020-04-30T22:08:24Z"},
+  {"client_id":1,"name":"Taro Sato","startup_datetime":"2020-06-07T09:05:22Z","shutdown_datetime":"2000-01-01T00:00:00Z"}
+]
 ~~~
 
 下記コマンドを実行すると、Worker-Monitor Serverに自PCの情報を送信・登録します。登録した情報は、上記getモードで取得することができます。
 
 ~~~
-$ worker-monitor post
+$ worker-monitor post [-d "YYYY/MM/DD"]
+=== POST client data: client ID = 1
 ~~~
 
 ## Uninstalling
